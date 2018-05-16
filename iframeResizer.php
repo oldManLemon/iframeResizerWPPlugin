@@ -32,7 +32,53 @@ oldManLemon's Iframe Resizer
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
   */
-
+//ABSPATH is a WP contstant use by wordpress, if another app or bot access this file and tries to run code, WP Constant won't be defined thus kill app.
   if ( ! defined('ABSPATH')){
       die;
+      // or exit;
   }
+
+  class iframeResizerClass{
+
+    //activate
+    function activate(){
+
+     add_action( 'activatedPlugin', 'myError' );
+    //  echo "Plugin is activatedThis is a longer string to make it pioke out";
+    }
+    function register(){
+      add_action('wp_enqueue_scripts', array($this, 'enqueue'));
+    }
+    function myError(){
+      file_put_contents(dirname(__FILE__).'/error_activation.txt',ob_get_contents());
+    }
+
+    //deactivate 
+    function dectivate(){
+      flush_rewrite_rules( );
+    }
+
+    //uninstall
+    function uninstall(){
+
+    }
+
+    //Enque myscripts
+
+      function enqueue(){
+        wp_enqueue_script ('iframeResizer.js', plugins_url('/assets/iframeResizer.js', __FILE__ ));
+
+      }
+  }
+
+  if( class_exists ('iframeResizerClass')){
+    $iframeClass = new iframeResizerClass();
+    $iframeClass->myError();
+    $iframeClass->register();
+  }
+//WP activation hook
+  register_activation_hook(__FILE__, array('$iframeClass', 'activate')); // Use array to tap the class, 2 parameters 0: Class Name 1: function
+
+//WP deactivation hook
+
+register_deactivation_hook(__FILE__, array('$iframeClass', 'deactivate'));
